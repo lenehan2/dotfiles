@@ -22,7 +22,6 @@ select_file() {
 }
 
 parse_file() {
-  selection="$1"
   echo $1 | cut -d ':' -f 1
 }
 
