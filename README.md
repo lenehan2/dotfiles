@@ -14,6 +14,7 @@ Stores all notes in centralized location ($NOTESDIRECTORY).  Allows for fuzzy se
  - fzf
  - xargs 
  - $NOTESDIRECTORY env variable set to path of notes directory
+ - $EDITOR set (i.e. `export EDITOR=/usr/bin/vim`)
 
 ### Installation
 
