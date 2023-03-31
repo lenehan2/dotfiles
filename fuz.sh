@@ -37,6 +37,12 @@ fi
 
 #TODO add ability to select directory
 case $subcommand in
+    usage) 
+        echo "notes [new|label|term]"
+        ;;
+    help) 
+        echo "notes [new|label|term]"
+        ;;
     new) 
         if [ -z "$filename" ]; then
             echo "Enter New Filename"

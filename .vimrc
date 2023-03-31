@@ -20,9 +20,6 @@
     " and for plugins that are filetype specific.
     filetype indent plugin on
  
-" Enable syntax highlighting
-syntax on 
- 
 "------------------------------------------------------------
 " Must have options 
 "
@@ -143,7 +140,7 @@ augroup SyntaxSettings
     autocmd BufNewFile,BufRead *.tsx set filetype=typescript.tsx
 augroup END 
 
-autocmd FileType html,json,typescript.tsx,typescript setlocal shiftwidth=2 tabstop=2
+autocmd FileType html,json,typescript.tsx,jsx,js setlocal shiftwidth=2 tabstop=2
 
 " augroup MyWebpackAUGroup
 "   au! BufRead,BufNewFile,BufEnter *webpack.js,*webpack*.js setlocal shiftwidth=2 tabstop=2
@@ -193,44 +190,8 @@ set splitright
 
 runtime macros/matchit.vim
 
-"Syntastic"
-"-----------------"
-" set statusline+=%#warningmsg#
-" set statusline+=%{SyntasticStatuslineFlag()}
-" set statusline+=%*
-
-" let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 1
-" let g:syntastic_check_on_open = 1
-" let g:syntastic_check_on_wq = 0
-"End syntastic"
-
-"JSHint"
-"-----------"
-" let JSHintUpdateWriteOnly=1
-"End JSHINT"
-"
 
 let g:NERDTreeNodeDelimiter = "\u00a0"
-" No longer using Ale, using coc entirely - JML
-" Ale js lint fixing
-" let g:ale_fixers = {
-" \   'javascript': ['eslint'],
-" \   'typescript': ['eslint'],
-" \}
-
-" let eslintFile = findfile('.eslintrc', '.;') != '' ||  findfile('.eslintrc.js', '.;') != '' || findfile('eslint.config.js', '.;') != ''  
-" autocmd FileType javascript,typescript.tsx let g:ale_linters = eslintFile ? {'javascript': ['eslint'], 'typescript': ['eslint']} : {'javascript': ['']}
-
- " Write this in your vimrc file
-" let g:ale_lint_on_save = 1
-" let g:ale_lint_on_text_changed = 'never'
-" let g:ale_lint_on_insert_leave = 0
-"  " " You can disable this option too
-"  " " if you don't want linters to run on opening a file
-" let g:ale_lint_on_enter = 0
-" let g:ale_disable_lsp = 1
-
 
 "----------------------------------------------------------
 " Vim-Plug plugins JML
@@ -254,16 +215,18 @@ Plug 'tpope/vim-surround' " Surround text with any key (\"\'\<{,etc)
 Plug 'tpope/vim-fugitive' " Git library for vim, not used often
 Plug 'rafi/awesome-vim-colorschemes'
 " Plug 'w0rp/ale' " Used for linting, not currently setup  
-Plug 'altercation/vim-colors-solarized' 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' } " Fuzzzy file searcher
 Plug 'junegunn/fzf.vim' " Fuzzy file search
 Plug 'ap/vim-css-color' " display color for css colors   
 Plug 'henrik/vim-indexed-search' " adds At match #N out of M matches to vim searches
 Plug 'jamessan/vim-gnupg' " gpg encrypt/decrypt files 
+Plug 'vim-scripts/openssl.vim' "aes file support
 Plug 'MarcWeber/vim-addon-mw-utils' " ???
 Plug 'tomtom/tlib_vim'
 " Plug 'ervandew/snipmate.vim' " cool snippets library, not used though
 Plug 'ervandew/supertab' 
+Plug 'altercation/vim-colors-solarized'
+Plug 'haishanh/night-owl.vim'
 call plug#end() 
 
 filetype plugin indent on
@@ -274,9 +237,33 @@ filetype plugin indent on
 
 
 "Colorscheme
-syntax enable
-set background=dark
-colorscheme hybrid_material
+" syntax enable
+" set background=dark
+" colorscheme hybrid_material
+" let g:solarized_termcolors=256
+" set t_Co=256
+" syntax enable
+" set background=dark
+" colorscheme solarized
+"Colorscheme
+" syntax enable
+" set background=dark
+" colorscheme hybrid_material
+syntax on
+colorscheme night-owl
+if (has("termguicolors"))
+ set termguicolors
+endif
+" hi Comment guifg=#637777 ctermfg=243 guibg=0 ctermbg=0 gui=italic ctermbg=0
+autocmd ColorScheme * highlight Normal cterm=None
+autocmd ColorScheme * highlight Comment cterm=None
+autocmd ColorScheme * highlight jsComment cterm=None 
+autocmd ColorScheme * highlight jsImport cterm=None 
+autocmd ColorScheme * highlight jsFrom cterm=None 
+autocmd ColorScheme * highlight jsModuleAs cterm=None 
+autocmd ColorScheme * highlight jsExtendsKeyword cterm=None 
+autocmd ColorScheme * highlight NonText cterm=None
+
 "Colorscheme end
 
 let g:ctrlp_user_command = 'ag %s -i --nocolor --nogroup --hidden --ignore .git --ignore .svn --ignore .hg --ignore .DS_Store --ignore "**/*.pyc" -g ""'
@@ -289,8 +276,7 @@ command! NTF NERDTreeFind
 
 autocmd FileType html set omnifunc=htmlcomplete#CompleteTag
 set foldmethod=syntax
-set foldlevel=20
-
+set foldlevel=20 
 
 " Allow sparkup to be used in jsx files
 autocmd FileType javascript.jsx,typescript.tsx runtime! ftplugin/html/sparkup.vim
@@ -336,7 +322,7 @@ command! -nargs=1 Bs :call BufSel("<args>")
 "----------------------------------------------------------
 " fzf config JML
 "----------------------------------------------------------
-command! Ls Buffers 
+command! Ls Buffers
 function! s:find_git_root()
       " let rootDir = system('git rev-parse --show-toplevel 2> /dev/null')[:-2]
       " return (rootDir ? rootDir : '~/')
@@ -359,17 +345,18 @@ endfun
 
 if executable("fzf")
     let g:fzf_layout = { 'down': '~30%' }
-	let g:fzf_action = {
-		  \ 'ctrl-x': 'split',
-		  \ 'ctrl-t': 'tab split',
-		  \ 'ctrl-v': 'vsplit',
-		  \ }
-	nnoremap <C-e> :call ExactSearch()<CR>
+        let g:fzf_action = {
+                  \ 'ctrl-x': 'split',
+                  \ 'ctrl-t': 'tab split',
+                  \ 'ctrl-v': 'vsplit',
+                  \ }
+        nnoremap <C-e> :call ExactSearch()<CR>
 
     command! GZF execute 'Files' s:find_git_root()
     command! GZFT execute 'Files' s:find_cwd()
-    nnoremap <silent> <C-P> :<C-u>GZF<CR>
-    nnoremap <C-I> :<C-u>GZFT<CR>
+    command! GZFTL execute 'GFiles --exclude-standard --others --cached' s:find_cwd()
+    nnoremap <expr> <C-p> (len(system('git rev-parse')) ? ':GZF' : ':GFiles --exclude-standard --others --cached')."\<cr>"
+    nnoremap <expr> <C-I> (len(system('git rev-parse')) ? ':GZFT' : ':GZFTL')."\<cr>"
 endif
 command! -nargs=* Cd call fzf#run(fzf#wrap( {'source': 'find '.(empty(<f-args>) ? '.' : <f-args>).' -type d',  'sink': 'cd'}))
 command! -nargs=* -complete=dir Cdd call fzf#run({'source': 'find '.s:find_local_git_root().' -type d','sink': 'cd','down':'20%'})
@@ -381,6 +368,52 @@ command! -bang -nargs=* Ag
 
 
 let g:fzf_history_dir = '~/.local/share/fzf-history'
+
+" command! Ls Buffers 
+" function! s:find_git_root()
+"       " let rootDir = system('git rev-parse --show-toplevel 2> /dev/null')[:-2]
+"       " return (rootDir ? rootDir : '~/')
+"       return system('git rev-parse --show-toplevel 2> /dev/null')[:-2]
+" endfunction
+" function! s:find_cwd()
+"       " let rootDir = system('git rev-parse --show-toplevel 2> /dev/null')[:-2]
+"       " return (rootDir ? rootDir : '~/')
+"       return system('pwd')[:-2]
+" endfunction
+
+" function! s:find_local_git_root()
+"       :lcd %:p:h
+"       return system('git rev-parse --show-toplevel 2> /dev/null')[:-2]
+" endfunction
+
+" fun! ExactSearch()
+"     :call fzf#vim#gitfiles('.', {'options': ['--query', "'"]})
+" endfun
+
+" if executable("fzf")
+"     let g:fzf_layout = { 'down': '~30%' }
+" 	let g:fzf_action = {
+" 		  \ 'ctrl-x': 'split',
+" 		  \ 'ctrl-t': 'tab split',
+" 		  \ 'ctrl-v': 'vsplit',
+" 		  \ }
+" 	nnoremap <C-e> :call ExactSearch()<CR>
+
+"     command! GZF execute 'Files' s:find_git_root()
+"     command! GZFT execute 'Files' s:find_cwd()
+"     nnoremap <silent> <C-P> :<C-u>GZF<CR>
+"     nnoremap <C-I> :<C-u>GZFT<CR>
+" endif
+" command! -nargs=* Cd call fzf#run(fzf#wrap( {'source': 'find '.(empty(<f-args>) ? '.' : <f-args>).' -type d',  'sink': 'cd'}))
+" command! -nargs=* -complete=dir Cdd call fzf#run({'source': 'find '.s:find_local_git_root().' -type d','sink': 'cd','down':'20%'})
+" command! -bang -nargs=* Ag
+"   \ call fzf#vim#ag(<q-args>,
+"   \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+"   \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+"   \                 <bang>0)
+
+
+" let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 "----------------------------------------------------------
 " fzf config end 
@@ -448,38 +481,33 @@ endfunction
 
 set updatetime=300
 
+let g:coc_disable_startup_warning = 1
+" Use tab for trigger completion with characters ahead and navigate
+" NOTE: There's always complete item selected by default, you may want to enable
+" no select by `"suggest.noselect": true` in your configuration file
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Use <c-space> to trigger completion
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
+
 " END coc config
-
-nnoremap <expr> <c-d> Scroll_cursor_popup(1) ? '<esc>' : '<c-d>'
-nnoremap <expr> <c-u> Scroll_cursor_popup(0) ? '<esc>' : '<c-u>'
-
-function Find_cursor_popup(...)
-  let radius = get(a:000, 0, 2)
-  let srow = screenrow()
-  let scol = screencol()
-
-  " it's necessary to test entire rect, as some popup might be quite small
-  for r in range(srow - radius, srow + radius)
-    for c in range(scol - radius, scol + radius)
-      let winid = popup_locate(r, c)
-      if winid != 0
-        return winid
-      endif
-    endfor
-  endfor
-
-  return 0
-endfunction
-
-function Scroll_cursor_popup(down)
-  let winid = Find_cursor_popup()
-  if winid == 0
-    return 0
-  endif
-
-  let pp = popup_getpos(winid)
-  call popup_setoptions( winid,
-        \ {'firstline' : pp.firstline + ( a:down ? 1 : -1 ) } )
-
-  return 1
-endfunction
