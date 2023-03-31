@@ -1,0 +1,18 @@
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+find_branch() {
+  local branches branch
+  branches=$(git branch -vv) &&
+  branch=$(echo "$branches" | fzf +m) &&
+  git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
+}
+
+alias fbr="find_branch"
+
+# # Add Visual Studio Code (code)
+# export PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
+
+function notes() {
+    cd $(eval echo "$NOTESDIRECTORY") && ./fuz.sh $@ && cd -
+}
+
